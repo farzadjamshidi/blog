@@ -24,6 +24,7 @@ public class Program
         });
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IPostRepository, PostRepository>();
         
         builder.Services.AddAutoMapper(typeof(Program));
 

@@ -19,4 +19,6 @@ public class User
     
     [StringLength(64)]
     public string HashedPassword { get; set; }
+    
+    public List<Post> Posts { get; set; }
 }
