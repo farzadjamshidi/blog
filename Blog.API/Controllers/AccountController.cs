@@ -90,9 +90,11 @@ public class AccountsController : ControllerBase
         // Create a ClaimsIdentity to be used when generating a JWT.
         var claimsIdentity = new ClaimsIdentity(new Claim[]
         {
-            new(JwtRegisteredClaimNames.Sub, value: identity.Email ?? throw new InvalidOperationException()),
-            new(JwtRegisteredClaimNames.Email, value: identity.Email ?? throw new InvalidOperationException())
+            new(JwtRegisteredClaimNames.Sub, identity.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, identity.Email ?? throw new InvalidOperationException())
         });
+        
+        claimsIdentity.AddClaims(newClaims);
 
         //also add the claims for first name and last name claimsIdentity.AddClaims(newClaims);
         var token = _identityService.CreateSecurityToken(claimsIdentity);
@@ -117,7 +119,7 @@ public class AccountsController : ControllerBase
 
         var claimsIdentity = new ClaimsIdentity(new Claim[]
         {
-            new(JwtRegisteredClaimNames.Sub, user.Email ?? throw new InvalidOperationException()),
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email ?? throw new InvalidOperationException())
         });
 

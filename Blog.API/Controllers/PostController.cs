@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using Blog.API.Dtos;
 using Blog.Domain.Entities;
@@ -14,7 +15,6 @@ public class PostController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IPostRepository _postRepo;
-    
     public PostController(
         IMapper mapper,
         IPostRepository postRepo
@@ -28,10 +28,10 @@ public class PostController : ControllerBase
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> CreatePost(CreatePostDto createPost)
     {
-        //assume that user is with id = 1
-        //later we need to add jwt and get user id from token
+        int userId =Int32.Parse((User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value));
+
         Post post = _mapper.Map<Post>(createPost);
-        await _postRepo.PostPost(1, post);
+        await _postRepo.PostPost(userId, post);
 
         if (post == null)
             return NotFound("User not found");
