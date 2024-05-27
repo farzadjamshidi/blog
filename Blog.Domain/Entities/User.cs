@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Identity;
 
 namespace Blog.Domain.Entities;
 
 [Table("Users")]
-public class User
+public class User : IdentityUser<int>
 {
-    public int Id { get; set; }
+    public new int Id { get; set; }
     
     [StringLength(50)]
     public string FirstName { get; set; }
