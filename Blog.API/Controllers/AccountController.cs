@@ -44,8 +44,11 @@ public class AccountsController : ControllerBase
             UserName = registerUser.Email
         };
 
-        //var createdIdentity = await _userManager.CreateAsync(identity, registerUser.Password);
+        var createdIdentity = await _userManager.CreateAsync(identity, registerUser.Password);
 
+        if (!createdIdentity.Succeeded) 
+            return BadRequest("Something wrong.");
+        
         // We want to add first name and last name as claims to the user. These claims also need to be persisted.
         var newClaims = new List<Claim>
         {
