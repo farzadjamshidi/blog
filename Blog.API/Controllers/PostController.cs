@@ -2,12 +2,14 @@ using AutoMapper;
 using Blog.API.Dtos;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class PostController : ControllerBase
 {
     private readonly IMapper _mapper;
@@ -23,6 +25,7 @@ public class PostController : ControllerBase
     }
     
     [HttpPost]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> CreatePost(CreatePostDto createPost)
     {
         //assume that user is with id = 1
@@ -40,6 +43,7 @@ public class PostController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
+    [Authorize(Roles = "Administrator, User")]
     public async Task<IActionResult> GetPostById(int id)
     {
         Post post = await _postRepo.GetById(id);

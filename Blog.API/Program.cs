@@ -1,3 +1,5 @@
+using Blog.API.Extensions;
+using Blog.API.Services;
 using Blog.Domain;
 using Blog.Domain.Repositories.Interfaces;
 using Blog.Domain.Repositories.Postgre;
@@ -16,7 +18,8 @@ public class Program
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwagger();
+        builder.RegisterAuthentication();
 
         builder.Services.AddDbContext<AppDbContext>(options =>
         {
@@ -25,6 +28,7 @@ public class Program
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IPostRepository, PostRepository>();
+        builder.Services.AddSingleton<IdentityService>();
         
         builder.Services.AddAutoMapper(typeof(Program));
 
