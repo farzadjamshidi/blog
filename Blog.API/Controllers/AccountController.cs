@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Blog.API.Services;
 using Blog.Domain;
+using Blog.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -11,21 +12,18 @@ namespace Blog.API.Controllers;
 [Route(template: "[controller]")]
 public class AccountsController : ControllerBase
 {
-    private readonly AppDbContext _ctx;
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly IdentityService _identityService;
 
     public AccountsController(
-        AppDbContext ctx,
-        UserManager<IdentityUser> userManager,
-        RoleManager<IdentityRole> roleManager,
+        UserManager<User> userManager,
+        RoleManager<ApplicationRole> roleManager,
         IdentityService identityService,
-        SignInManager<IdentityUser> signInManager
+        SignInManager<User> signInManager
     )
     {
-        _ctx = ctx;
         _userManager = userManager;
         _roleManager = roleManager;
         _identityService = identityService;
@@ -38,8 +36,15 @@ public class AccountsController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
     {
         // Create new IdentityUser. This will persist the user to the database.
-        var identity = new IdentityUser { Email = registerUser.Email, UserName = registerUser.Email };
-        var createdIdentity = await _userManager.CreateAsync(identity, registerUser.Password);
+        var identity = new User
+        {
+            FirstName = registerUser.FirstName,
+            LastName = registerUser.LastName,
+            Email = registerUser.Email,
+            UserName = registerUser.Email
+        };
+
+        //var createdIdentity = await _userManager.CreateAsync(identity, registerUser.Password);
 
         // We want to add first name and last name as claims to the user. These claims also need to be persisted.
         var newClaims = new List<Claim>
@@ -55,11 +60,11 @@ public class AccountsController : ControllerBase
             var role = await _roleManager.FindByNameAsync("Administrator");
             if (role == null)
             {
-                role = new IdentityRole("Administrator");
+                role = new ApplicationRole("Administrator");
                 await _roleManager.CreateAsync(role);
             }
 
-            await _userManager.AddToRoleAsync(identity, role: "Administrator");
+            await _userManager.AddToRoleAsync(identity, "Administrator");
 
             // add the newly added role to the claims
             newClaims.Add(item: new Claim(ClaimTypes.Role, "Administrator"));
@@ -69,11 +74,11 @@ public class AccountsController : ControllerBase
             var role = await _roleManager.FindByNameAsync("User");
             if (role == null)
             {
-                role = new IdentityRole("User");
+                role = new ApplicationRole("User");
                 await _roleManager.CreateAsync(role);
             }
 
-            await _userManager.AddToRoleAsync(identity, role: "User");
+            await _userManager.AddToRoleAsync(identity, "User");
 
             // add the newly added role to the claims
             newClaims.Add(item: new Claim(ClaimTypes.Role, "User"));

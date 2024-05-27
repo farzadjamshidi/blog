@@ -5,12 +5,16 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Blog.Domain;
 
-public class AppDbContext : IdentityDbContext<IdentityUser>
+public class AppDbContext : IdentityDbContext<User, ApplicationRole, int>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-    public new DbSet<User> Users {get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+    }
     public DbSet<Post> Posts {get; set; }
     public DbSet<Comment> Comments { get; set; }
 }
