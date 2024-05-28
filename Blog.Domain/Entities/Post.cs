@@ -10,6 +10,9 @@ public class Post
     public int AuthorId { get; set; }
     public virtual User Author { get; set; }
     public string Content { get; set; }
+    
+    public List<Comment> Comments { get; set; }
+
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
