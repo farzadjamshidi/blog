@@ -1,3 +1,4 @@
+using System.Reflection;
 using Blog.API.Extensions;
 using Blog.API.Services;
 using Blog.Domain;
@@ -26,9 +27,8 @@ public class Program
             options.UseNpgsql(builder.Configuration.GetConnectionString("Postgre"));
         });
 
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IPostRepository, PostRepository>();
-        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+        builder.Services.AddDomainDIRegistration();
+
         builder.Services.AddSingleton<IdentityService>();
         
         builder.Services.AddAutoMapper(typeof(Program));
