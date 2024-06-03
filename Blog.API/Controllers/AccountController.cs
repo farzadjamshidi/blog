@@ -33,7 +33,7 @@ public class AccountsController : ControllerBase
 
     [HttpPost]
     [Route(template: "register")]
-    public async Task<IActionResult> Register([FromBody] RegisterUser registerUser)
+    public async Task<IActionResult> Register([FromForm] RegisterUser registerUser)
     {
         // Create new IdentityUser. This will persist the user to the database.
         var identity = new User
@@ -44,6 +44,29 @@ public class AccountsController : ControllerBase
             UserName = registerUser.Email
         };
 
+        if (registerUser.Picture?.Length>0)
+        {
+            string extension = Path.GetExtension(registerUser.Picture.FileName);
+
+            string path = Path.Combine("Images", registerUser.Picture.FileName);
+            
+            
+            using (var fileStream = new FileStream(path, FileMode.Create))  
+            {  
+                await registerUser.Picture.CopyToAsync(fileStream);  
+
+                // Upload the file if less than 2 MB  
+                if (fileStream.Length < 2097152)  
+                {  
+                    identity.Picture = path;
+                }  
+                else  
+                {  
+                    ModelState.AddModelError("File", "The file is too large.");  
+                }  
+            }  
+        }
+        
         var createdIdentity = await _userManager.CreateAsync(identity, registerUser.Password);
 
         if (!createdIdentity.Succeeded) 
@@ -143,6 +166,6 @@ public enum Role
     Administrator,
     User
 }
-public record RegisterUser(string Email, string Password, string FirstName, string LastName, Role Role);
+public record RegisterUser(string Email, string Password, string FirstName, string LastName, Role Role, IFormFile? Picture);
 public record LoginUser(string Email, string Password);
 public record AuthenticationResult(string Token);

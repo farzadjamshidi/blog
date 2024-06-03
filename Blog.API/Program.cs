@@ -32,6 +32,15 @@ public class Program
         builder.Services.AddSingleton<IdentityService>();
         
         builder.Services.AddAutoMapper(typeof(Program));
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                policy =>
+                {
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+        });
 
         var app = builder.Build();
 
@@ -46,6 +55,9 @@ public class Program
 
         app.UseAuthorization();
 
+        app.UseCors();
+        
+        app.UseStaticFiles();
 
         app.MapControllers();
 

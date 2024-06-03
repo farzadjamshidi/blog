@@ -29,6 +29,8 @@ public class UserController : ControllerBase
 
         if (user == null)
             return NotFound("User not found");
+        
+        user.Picture = String.Concat("https://localhost:7163/", user.Picture);
 
         return Ok(user);
     }
