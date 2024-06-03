@@ -21,4 +21,12 @@
       <ProjectReference Include="..\Blog.Domain\Blog.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\Images\Screenshot 2024-06-03 at 11.34.10.png" />
+    </ItemGroup>
+
 </Project>
