@@ -1,10 +1,13 @@
 using System.Reflection;
 using Blog.API.Extensions;
+using Blog.API.Middleware;
 using Blog.API.Services;
+using Blog.API.Setup;
 using Blog.Domain;
 using Blog.Domain.Repositories.Interfaces;
 using Blog.Domain.Repositories.Postgre;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Blog.API;
 
@@ -47,6 +50,10 @@ public class Program
             options.Configuration = "localhost:6379";
         });
 
+        builder.Services.AddSerilog();
+        SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
+        builder.Host.UseSerilog();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
@@ -65,7 +72,9 @@ public class Program
         app.UseStaticFiles();
 
         app.MapControllers();
-
+        
+        app.UseMiddleware<ErrorHandlingMiddleware>();
+        
         app.Run();
     }
 }
