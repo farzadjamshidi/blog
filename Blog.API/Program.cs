@@ -1,5 +1,6 @@
 using System.Reflection;
 using Blog.API.Extensions;
+using Blog.API.Hub;
 using Blog.API.Middleware;
 using Blog.API.Services;
 using Blog.API.Setup;
@@ -49,6 +50,8 @@ public class Program
         {
             options.Configuration = "localhost:6379";
         });
+        
+        builder.Services.AddSignalR();
 
         builder.Services.AddSerilog();
         SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
@@ -72,6 +75,8 @@ public class Program
         app.UseStaticFiles();
 
         app.MapControllers();
+        
+        app.MapHub<MessageHub>("/notification");
         
         app.UseMiddleware<ErrorHandlingMiddleware>();
         
