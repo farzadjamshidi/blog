@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using AutoMapper;
 using Blog.API.Dtos;
-using Blog.API.Hub;
+using Blog.API.Hubs;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -44,7 +44,7 @@ public class CommentController : ControllerBase
 
         var mappedComment = _mapper.Map<GetByIdCommentDto>(comment);
         
-        await _messageHub.Clients.User(comment.Post.AuthorId.ToString()).NewComment($"comment added for post '{comment.Post.Content}' by '{comment.Post.Author.LastName}'");
+        await _messageHub.Clients.All.NewComment($"comment added for post '{comment.Post.Content}' by '{comment.Post.Author.LastName}'");
 
         return Ok(mappedComment);
     }

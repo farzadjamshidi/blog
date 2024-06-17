@@ -1,6 +1,6 @@
 using System.Reflection;
 using Blog.API.Extensions;
-using Blog.API.Hub;
+using Blog.API.Hubs;
 using Blog.API.Middleware;
 using Blog.API.Services;
 using Blog.API.Setup;
@@ -20,6 +20,8 @@ public class Program
 
         // Add services to the container.
 
+        builder.Services.AddSignalR();
+ 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -42,7 +44,7 @@ public class Program
             options.AddDefaultPolicy(
                 policy =>
                 {
-                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                    policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed((hosts) => true);
                 });
         });
 
@@ -51,8 +53,6 @@ public class Program
             options.Configuration = "localhost:6379";
         });
         
-        builder.Services.AddSignalR();
-
         builder.Services.AddSerilog();
         SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
         builder.Host.UseSerilog();
@@ -73,10 +73,11 @@ public class Program
         app.UseCors();
         
         app.UseStaticFiles();
+        
+        app.MapHub<MessageHub>("/notification");
 
         app.MapControllers();
         
-        app.MapHub<MessageHub>("/notification");
         
         app.UseMiddleware<ErrorHandlingMiddleware>();
         

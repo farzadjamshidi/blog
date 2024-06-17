@@ -31,6 +31,7 @@ public class CommentRepository: ICommentRepository
     {
         var post = await _ctx.Posts
             .Include(post => post.Comments)
+            .Include(post => post.Author)
             .FirstOrDefaultAsync(post => post.Id == postId);
         
         if (post == null) 
