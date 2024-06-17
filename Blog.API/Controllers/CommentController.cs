@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using AutoMapper;
 using Blog.API.Dtos;
+using Blog.API.Hubs;
 using Blog.Domain.Entities;
 using Blog.Domain.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Blog.API.Controllers;
 
@@ -16,16 +18,18 @@ public class CommentController : ControllerBase
     private readonly IPostRepository _postRepo;
     private readonly ICommentRepository _commentRepo;
     private readonly IMapper _mapper;
-    
+    private readonly IHubContext < MessageHub, IMessageHubClient > _messageHub;
     public CommentController(
         IPostRepository postRepo,
         ICommentRepository commentRepo,
-        IMapper mapper
+        IMapper mapper,
+        IHubContext < MessageHub, IMessageHubClient > messageHub
         )
     {
         _postRepo = postRepo;
         _commentRepo = commentRepo;
         _mapper = mapper;
+        _messageHub = messageHub;
     }
     
     [HttpPost]
@@ -39,6 +43,8 @@ public class CommentController : ControllerBase
         await _commentRepo.Post(comment.PostId, comment);
 
         var mappedComment = _mapper.Map<GetByIdCommentDto>(comment);
+        
+        await _messageHub.Clients.All.NewComment($"comment added for post '{comment.Post.Content}' by '{comment.Post.Author.LastName}'");
 
         return Ok(mappedComment);
     }
