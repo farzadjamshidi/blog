@@ -1,10 +1,12 @@
 using Blog.API.Extensions;
 using Blog.API.Hubs;
 using Blog.API.Middleware;
+using Blog.API.Options;
 using Blog.API.Services;
 using Blog.API.Setup;
 using Blog.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -38,7 +40,11 @@ public class Program
         });
         
         builder.Services.AddEndpointsApiExplorer();
+        
         builder.Services.AddSwagger();
+
+        builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+
         builder.RegisterAuthentication();
 
         builder.Services.AddDbContext<AppDbContext>(options =>
@@ -76,7 +82,16 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(options =>
+            {
+                var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", 
+                        description.ApiVersion.ToString());
+                }
+            });
         }
 
         app.UseHttpsRedirection();

@@ -64,7 +64,6 @@ public static class WebApplicationBuilderExtension
     {
         services.AddSwaggerGen(option=>
         {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "BasicAuth API", Version = "v1" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
