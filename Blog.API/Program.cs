@@ -1,12 +1,11 @@
-using System.Reflection;
 using Blog.API.Extensions;
 using Blog.API.Hubs;
 using Blog.API.Middleware;
 using Blog.API.Services;
 using Blog.API.Setup;
 using Blog.Domain;
-using Blog.Domain.Repositories.Interfaces;
-using Blog.Domain.Repositories.Postgre;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -23,7 +22,21 @@ public class Program
         builder.Services.AddSignalR();
  
         builder.Services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+        builder.Services.AddApiVersioning(config =>
+        {
+            config.DefaultApiVersion = new ApiVersion(1,0);
+            config.AssumeDefaultVersionWhenUnspecified = true;
+            config.ReportApiVersions = true;
+            config.ApiVersionReader = new UrlSegmentApiVersionReader();
+        });
+
+        builder.Services.AddVersionedApiExplorer(config =>
+        {
+            config.GroupNameFormat = "'v'VVV";
+            config.SubstituteApiVersionInUrl = true;
+        });
+        
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwagger();
         builder.RegisterAuthentication();
