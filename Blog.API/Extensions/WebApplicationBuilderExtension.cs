@@ -1,8 +1,7 @@
 using System.Text;
 using Blog.API.Options;
 using Blog.DAL;
-using Blog.Domain;
-using Blog.Domain.Entities;
+using Blog.Domain.Aggregates.UserProfileAggregate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
@@ -46,7 +45,7 @@ public static class WebApplicationBuilderExtension
                 jwt.ClaimsIssuer = jwtSettings.Issuer;
             });
         
-        builder.Services.AddIdentityCore<User>(options =>
+        builder.Services.AddIdentityCore<UserProfile>(options =>
         {
             options. Password. RequireDigit = false;
             options.Password.RequiredLength = 5;
@@ -54,7 +53,6 @@ public static class WebApplicationBuilderExtension
             options. Password. RequireUppercase = false;
             options.Password.RequireNonAlphanumeric = false;
         })
-            .AddRoles<ApplicationRole>()
             .AddSignInManager()
             .AddEntityFrameworkStores<DataContext>();
         
