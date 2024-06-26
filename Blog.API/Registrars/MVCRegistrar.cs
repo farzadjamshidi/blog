@@ -33,14 +33,9 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
         
         builder.Services.AddEndpointsApiExplorer();
 
-        builder.RegisterAuthentication();
-
-        builder.Services.AddDbContext<AppDbContext>(options =>
-        {
-            options.UseNpgsql(builder.Configuration.GetConnectionString("Postgre"));
-        });
-
-        builder.Services.AddDomainDIRegistration();
+        //builder.RegisterAuthentication();
+        
+        //builder.Services.AddDomainDIRegistration();
 
         builder.Services.AddSingleton<IdentityService>();
         

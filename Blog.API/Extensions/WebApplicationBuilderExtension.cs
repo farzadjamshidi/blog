@@ -1,5 +1,6 @@
 using System.Text;
 using Blog.API.Options;
+using Blog.DAL;
 using Blog.Domain;
 using Blog.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -55,7 +56,7 @@ public static class WebApplicationBuilderExtension
         })
             .AddRoles<ApplicationRole>()
             .AddSignInManager()
-            .AddEntityFrameworkStores<AppDbContext>();
+            .AddEntityFrameworkStores<DataContext>();
         
         return builder;
     }
