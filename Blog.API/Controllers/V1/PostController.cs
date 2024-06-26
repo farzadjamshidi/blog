@@ -6,10 +6,11 @@ using Blog.Domain.Repositories.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Blog.API.Controllers;
+namespace Blog.API.Controllers.V1;
 
+[ApiVersion("1.0")]
 [ApiController]
-[Route("[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class PostController : ControllerBase
 {
@@ -41,6 +42,7 @@ public class PostController : ControllerBase
         return Ok(mappedPost);
     }
 
+    // [MapToApiVersion("2.0")] we prefer to not use this approach to have a cleaner code.
     [HttpGet]
     [Route("{id}")]
     [Authorize(Roles = "Administrator, User")]
