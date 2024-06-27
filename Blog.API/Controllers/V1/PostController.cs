@@ -8,7 +8,7 @@ namespace Blog.API.Controllers.V1;
 
 [ApiVersion("1.0")]
 [ApiController]
-[Route("api/v{version:apiVersion}/[controller]")]
+[Route(Routes.Base)]
 [Authorize]
 public class PostController : ControllerBase
 {
@@ -29,7 +29,7 @@ public class PostController : ControllerBase
 
     // [MapToApiVersion("2.0")] we prefer to not use this approach to have a cleaner code.
     [HttpGet]
-    [Route("{id}")]
+    [Route(Routes.Post.Entity)]
     [Authorize(Roles = "Administrator, User")]
     public async Task<IActionResult> GetPostById(int id)
     {

@@ -12,7 +12,7 @@ public class PostController : ControllerBase
     }
     
     [HttpGet]
-    [Route("{id}")]
+    [Route(Routes.Post.Entity)]
     public async Task<IActionResult> GetPostById(int id)
     {
         return Ok("Post controller version 2");
