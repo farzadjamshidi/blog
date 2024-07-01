@@ -1,7 +1,9 @@
 using Blog.API.Extensions;
 using Blog.API.Services;
 using Blog.API.Setup;
+using Blog.Application;
 using Blog.Domain;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
@@ -39,7 +41,9 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
 
         builder.Services.AddSingleton<IdentityService>();
         
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddAutoMapper(typeof(Program), typeof(ApplicationProgram));
+
+        builder.Services.AddMediatR(typeof(ApplicationProgram));
         
         builder.Services.AddCors(options =>
         {

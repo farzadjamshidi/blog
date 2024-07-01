@@ -7,12 +7,12 @@ public class UserProfile
     }
     
     public Guid Id { get; private set; }
-    public int IdentityId { get; private set; }
+    public string IdentityId { get; private set; }
     public BasicInfo BasicInfo { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }
     
-    public static UserProfile CreateUserProfile(int identityId, BasicInfo basicInfo)
+    public static UserProfile CreateUserProfile(string identityId, BasicInfo basicInfo)
     {
         //Here is for validations
         return new UserProfile()
