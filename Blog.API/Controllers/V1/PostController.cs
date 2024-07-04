@@ -71,7 +71,7 @@ public class PostController : ControllerBase
 
     [HttpPatch]
     [Route(Routes.Post.Entity)]
-    public async Task<IActionResult> Update(Guid id, UpdatePostDtoReq updatePostDtoReq)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePostDtoReq updatePostDtoReq)
     {
         var updatePostCommand = _mapper.Map<UpdatePostCommand>(updatePostDtoReq);
         updatePostCommand.Id = id;
@@ -104,4 +104,50 @@ public class PostController : ControllerBase
         
         return NoContent();
     }
+
+    [HttpGet]
+    [Route(Routes.Post.Comment)]
+    public async Task<IActionResult> GetAllComments(Guid id)
+    {
+        var postCommentsQuery = new GetAllPostCommentQuery()
+        {
+            PostId = id
+        };
+
+        var postComments = await _mediator.Send(postCommentsQuery);
+
+        if (postComments == null)
+        {
+            return NotFound("Post not found");
+        }
+
+        var response = _mapper.Map<List<CreatePostCommentDtoRes>>(postComments);
+
+        return Ok(response);
+    }
+
+    [HttpPost]
+    [Route(Routes.Post.Comment)]
+    public async Task<IActionResult> CreateComment(
+        Guid id, [FromBody] CreatePostCommentDtoReq createPostCommentDtoReq)
+    {
+        var createPostCommentCommand = new CreatePostCommentCommand()
+        {
+            PostId = id,
+            UserProfileId = createPostCommentDtoReq.UserProfileId,
+            Text = createPostCommentDtoReq.Text
+        };
+
+        var postComment = await _mediator.Send(createPostCommentCommand);
+        
+        if (postComment == null)
+        {
+            return NotFound("Post not found");
+        }
+
+        var response = _mapper.Map<CreatePostCommentDtoRes>(postComment);
+
+        return Ok(response);
+    }
+    
 }
