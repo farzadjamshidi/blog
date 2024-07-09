@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
@@ -20,6 +21,31 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
         {
             options.SwaggerDoc(description.GroupName, CreateVersionInfo(description));
         }
+        
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            In = ParameterLocation.Header,
+            Description = "Please enter a valid token",
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            BearerFormat = "JWT",
+            Scheme = "Bearer"
+        });
+                
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement 
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference 
+                    {
+                        Type=ReferenceType.SecurityScheme,
+                        Id=JwtBearerDefaults.AuthenticationScheme
+                    }
+                },
+                new string[]{}
+            }
+        });
     }
 
     private OpenApiInfo CreateVersionInfo(ApiVersionDescription description)

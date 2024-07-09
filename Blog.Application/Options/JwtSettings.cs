@@ -1,4 +1,4 @@
-namespace Blog.API.Options;
+namespace Blog.Application.Options;
 
 public class JwtSettings {
     public string? SigningKey { get; set; }

@@ -34,8 +34,6 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
         });
         
         builder.Services.AddEndpointsApiExplorer();
-
-        //builder.RegisterAuthentication();
         
         //builder.Services.AddDomainDIRegistration();
 

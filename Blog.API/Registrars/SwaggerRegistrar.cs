@@ -7,8 +7,6 @@ public class SwaggerRegistrar : IWebApplicationBuilderRegistrar
 {
     public void RegisterServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddSwagger();
-
         builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
     }
 }
