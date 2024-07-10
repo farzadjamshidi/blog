@@ -15,6 +15,8 @@ public class Routes
         public const string Entity = "{id}";
         public const string Comment = "{id}/Comment";
         public const string CommentEntity = "{id}/Comment/{commentId}";
+        public const string Interaction = "{id}/Interaction";
+        public const string InteractionEntity = "{id}/Interaction/{interactionId}";
     }
     
     public class Identity

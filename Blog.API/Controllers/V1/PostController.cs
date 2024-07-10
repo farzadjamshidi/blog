@@ -4,6 +4,7 @@ using Blog.API.Dtos.V1.Post.Responses;
 using Blog.Application.Post.Commands;
 using Blog.Application.Post.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers.V1;
@@ -11,6 +12,7 @@ namespace Blog.API.Controllers.V1;
 [ApiVersion("1.0")]
 [ApiController]
 [Route(Routes.Base)]
+[Authorize()]
 public class PostController : ControllerBase
 {
     private readonly IMapper _mapper;
@@ -129,7 +131,7 @@ public class PostController : ControllerBase
     [HttpPost]
     [Route(Routes.Post.Comment)]
     public async Task<IActionResult> CreateComment(
-        Guid id, [FromBody] CreatePostCommentDtoReq createPostCommentDtoReq)
+        Guid id, [FromBody] CreatePostCommentDtoReq createPostCommentDtoReq, CancellationToken cancellationToken)
     {
         var createPostCommentCommand = new CreatePostCommentCommand()
         {
@@ -149,5 +151,69 @@ public class PostController : ControllerBase
 
         return Ok(response);
     }
+
+    [HttpGet]
+    [Route(Routes.Post.Interaction)]
+    public async Task<IActionResult> GetAllInteractions(Guid id, CancellationToken cancellationToken)
+    {
+        var postInteractionsQuery = new GetAllPostInteractionsQuery()
+        {
+            PostId = id
+        };
+        
+        var postInteractions = await _mediator.Send(postInteractionsQuery, cancellationToken);
+
+        if (postInteractions == null)
+        {
+            return NotFound("Post not found");
+        }
+
+        var response = _mapper.Map<List<CreatePostInteractionDtoRes>>(postInteractions);
+
+        return Ok(response);
+    }
     
+    [HttpPost]
+    [Route(Routes.Post.Interaction)]
+    public async Task<IActionResult> CreateInteraction(
+        Guid id, [FromBody] CreatePostInteractionDtoReq createPostInteractionDtoReq, CancellationToken cancellationToken)
+    {
+        var createPostInteractionCommand = new CreatePostInteractionCommand()
+        {
+            PostId = id,
+            Type = createPostInteractionDtoReq.Type
+        };
+
+        var postInteraction = await _mediator.Send(createPostInteractionCommand, cancellationToken);
+        
+        if (postInteraction == null)
+        {
+            return NotFound("Post not found");
+        }
+
+        var response = _mapper.Map<CreatePostInteractionDtoRes>(postInteraction);
+
+        return Ok(response);
+    }
+    
+    [HttpDelete]
+    [Route(Routes.Post.InteractionEntity)]
+    public async Task<IActionResult> DeleteInteraction(Guid id, Guid interactionId, 
+        CancellationToken cancellationToken)
+    {
+        var deletePostInteractionCommand = new DeletePostInteractionCommand()
+        {
+            PostId = id,
+            InteractionId = interactionId
+        };
+        
+        var deletedPostInteraction = await _mediator.Send(deletePostInteractionCommand, cancellationToken);
+
+        if (deletedPostInteraction == null)
+        {
+            return NotFound("Post not found");
+        }
+        
+        return NoContent();
+    }
 }

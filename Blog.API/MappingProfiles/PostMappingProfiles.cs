@@ -14,5 +14,6 @@ public class PostMappingProfiles: Profile
         CreateMap<Post, CreatePostDtoRes>();
         CreateMap<UpdatePostDtoReq, UpdatePostCommand>();
         CreateMap<PostComment, CreatePostCommentDtoRes>();
+        CreateMap<PostInteraction, CreatePostInteractionDtoRes>();
     }
 }
