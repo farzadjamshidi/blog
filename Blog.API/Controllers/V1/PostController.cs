@@ -151,6 +151,27 @@ public class PostController : ControllerBase
 
         return Ok(response);
     }
+    
+    [HttpDelete]
+    [Route(Routes.Post.CommentEntity)]
+    public async Task<IActionResult> DeleteComment(Guid id, Guid commentId, 
+        CancellationToken cancellationToken)
+    {
+        var deletePostCommentCommand = new DeletePostCommentCommand()
+        {
+            PostId = id,
+            CommentId = commentId
+        };
+        
+        var deletedPostComment = await _mediator.Send(deletePostCommentCommand, cancellationToken);
+
+        if (deletedPostComment == null)
+        {
+            return NotFound("Post not found");
+        }
+        
+        return NoContent();
+    }
 
     [HttpGet]
     [Route(Routes.Post.Interaction)]
