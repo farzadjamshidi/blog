@@ -1,9 +1,7 @@
 using System.Text;
+using Blog.Application.Identity.Services;
 using Blog.Application.Options;
-using Blog.DAL;
-using Blog.Domain.Aggregates.UserProfileAggregate;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 namespace Blog.API.Registrars;
 
@@ -11,6 +9,7 @@ public class IdentityRegistrar: IWebApplicationBuilderRegistrar
 {
     public void RegisterServices(WebApplicationBuilder builder)
     {
+        builder.Services.AddScoped<IdentityService>();
         var jwtSettings = new JwtSettings();
         builder.Configuration.Bind(nameof(JwtSettings), jwtSettings);
 

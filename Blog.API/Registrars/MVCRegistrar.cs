@@ -1,12 +1,8 @@
-using Blog.API.Extensions;
-using Blog.API.Services;
 using Blog.API.Setup;
 using Blog.Application;
-using Blog.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 namespace Blog.API.Registrars;
@@ -34,10 +30,6 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
         });
         
         builder.Services.AddEndpointsApiExplorer();
-        
-        //builder.Services.AddDomainDIRegistration();
-
-        builder.Services.AddSingleton<IdentityService>();
         
         builder.Services.AddAutoMapper(typeof(Program), typeof(ApplicationProgram));
 

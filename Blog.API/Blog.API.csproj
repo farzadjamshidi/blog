@@ -31,7 +31,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Dtos\Identity\Responses\" />
       <Folder Include="wwwroot\" />
     </ItemGroup>
 

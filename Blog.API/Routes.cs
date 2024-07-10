@@ -16,4 +16,10 @@ public class Routes
         public const string Comment = "{id}/Comment";
         public const string CommentEntity = "{id}/Comment/{commentId}";
     }
+    
+    public class Identity
+    {
+        public const string Login = "Login";
+        public const string Register = "Register";
+    }
 }

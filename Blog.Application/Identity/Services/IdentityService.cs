@@ -1,11 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Blog.API.Options;
+using Blog.Application.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Blog.API.Services;
+namespace Blog.Application.Identity.Services;
 
 public class IdentityService
 {
