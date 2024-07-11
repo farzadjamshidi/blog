@@ -10,7 +10,6 @@ public class PostMappingProfiles: Profile
 {
     public PostMappingProfiles()
     {
-        CreateMap<CreatePostDtoReq, CreatePostCommand>();
         CreateMap<Post, CreatePostDtoRes>();
         CreateMap<UpdatePostDtoReq, UpdatePostCommand>();
         CreateMap<PostComment, CreatePostCommentDtoRes>();

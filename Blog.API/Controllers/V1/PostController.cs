@@ -1,6 +1,7 @@
 using AutoMapper;
 using Blog.API.Dtos.V1.Post.Requests;
 using Blog.API.Dtos.V1.Post.Responses;
+using Blog.Api.Extensions;
 using Blog.Application.Post.Commands;
 using Blog.Application.Post.Queries;
 using MediatR;
@@ -39,8 +40,11 @@ public class PostController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePostDtoReq createPostDtoReq)
     {
-        
-        var postCommand = _mapper.Map<CreatePostCommand>(createPostDtoReq);
+        var postCommand = new CreatePostCommand
+        {
+            UserProfileId = HttpContext.GetUserProfileIdClaimValue(),
+            Text = createPostDtoReq.Text
+        };
 
         var post = await _mediator.Send(postCommand);
 
@@ -109,14 +113,14 @@ public class PostController : ControllerBase
 
     [HttpGet]
     [Route(Routes.Post.Comment)]
-    public async Task<IActionResult> GetAllComments(Guid id)
+    public async Task<IActionResult> GetAllComments(Guid id, CancellationToken cancellationToken)
     {
         var postCommentsQuery = new GetAllPostCommentQuery()
         {
             PostId = id
         };
 
-        var postComments = await _mediator.Send(postCommentsQuery);
+        var postComments = await _mediator.Send(postCommentsQuery, cancellationToken);
 
         if (postComments == null)
         {
@@ -136,11 +140,11 @@ public class PostController : ControllerBase
         var createPostCommentCommand = new CreatePostCommentCommand()
         {
             PostId = id,
-            UserProfileId = createPostCommentDtoReq.UserProfileId,
+            UserProfileId = HttpContext.GetUserProfileIdClaimValue(),
             Text = createPostCommentDtoReq.Text
         };
 
-        var postComment = await _mediator.Send(createPostCommentCommand);
+        var postComment = await _mediator.Send(createPostCommentCommand, cancellationToken);
         
         if (postComment == null)
         {
