@@ -8,8 +8,8 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
 {
     public void RegisterServices(WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
-        {
+        // if (app.Environment.IsDevelopment())
+        // {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -21,7 +21,7 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
                         description.ApiVersion.ToString());
                 }
             });
-        }
+        // }
 
         app.UseHttpsRedirection();
 
