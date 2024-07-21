@@ -44,13 +44,13 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
                 });
         });
 
-        builder.Services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = "localhost:6379";
-        });
-        
-        builder.Services.AddSerilog();
-        SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
-        builder.Host.UseSerilog();
+        // builder.Services.AddStackExchangeRedisCache(options =>
+        // {
+        //     options.Configuration = "localhost:6379";
+        // });
+        //
+        // builder.Services.AddSerilog();
+        // SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
+        // builder.Host.UseSerilog();
     }
 }
