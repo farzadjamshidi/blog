@@ -11,7 +11,8 @@ public class DbRegistrar: IWebApplicationBuilderRegistrar
     {
         builder.Services.AddDbContext<DataContext>(options =>
         {
-            options.UseNpgsql(builder.Configuration.GetConnectionString("Postgre"));
+            // options.UseNpgsql(builder.Configuration.GetConnectionString("Postgre"));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("AzureSql"));
         });
         
         builder.Services.AddIdentityCore<IdentityUser>(options =>
