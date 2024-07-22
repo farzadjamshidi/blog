@@ -53,4 +53,4 @@ jobs:
           app-name: 'farzad-blog-api'
           slot-name: 'Production'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_FBE14948B90E4FF4B3EF47DAC1FDB5EE }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_69E2723229394CBD828BDCEC18E90FA0 }}
