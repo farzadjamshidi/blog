@@ -70,7 +70,7 @@ public class PostController : ControllerBase
             return NotFound("Post not found");
         }
         
-        var response = _mapper.Map<CreatePostDtoRes>(post);
+        var response = _mapper.Map<GetPostByIdDtoRes>(post);
         
         return Ok(response);
     }

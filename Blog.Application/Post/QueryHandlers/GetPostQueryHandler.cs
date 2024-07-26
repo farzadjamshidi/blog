@@ -1,3 +1,4 @@
+using Blog.Application.Dtos.Post;
 using Blog.Application.Post.Queries;
 using Blog.DAL;
 using MediatR;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Post.QueryHandlers;
 
-public class GetPostQueryHandler: IRequestHandler<GetPostQuery, Domain.Aggregates.PostAggregate.Post?>
+public class GetPostQueryHandler: IRequestHandler<GetPostQuery, GetPostByIdDtoApp?>
 {
     private readonly DataContext _ctx;
     
@@ -14,8 +15,23 @@ public class GetPostQueryHandler: IRequestHandler<GetPostQuery, Domain.Aggregate
         _ctx = ctx;
     }
     
-    public async Task<Domain.Aggregates.PostAggregate.Post?> Handle(GetPostQuery request, CancellationToken cancellationToken)
+    public async Task<GetPostByIdDtoApp?> Handle(GetPostQuery request, CancellationToken cancellationToken)
     {
-        return await _ctx.Posts.FirstOrDefaultAsync(post => post.Id == request.Id, cancellationToken);
+        return await _ctx.Posts
+            .Where(post => post.Id == request.Id)
+            .Include(post => post.Comments)
+            .Select(p => new GetPostByIdDtoApp
+            {
+                Post = p,
+                InteractionsCount = p.Interactions
+                    .GroupBy(i => i.Type)
+                    .Select(g => new InteractionCount
+                    {
+                        Type = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

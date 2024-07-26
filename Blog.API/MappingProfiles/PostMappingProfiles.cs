@@ -1,6 +1,7 @@
 using AutoMapper;
 using Blog.API.Dtos.V1.Post.Requests;
 using Blog.API.Dtos.V1.Post.Responses;
+using Blog.Application.Dtos.Post;
 using Blog.Application.Post.Commands;
 using Blog.Domain.Aggregates.PostAggregate;
 
@@ -14,5 +15,30 @@ public class PostMappingProfiles: Profile
         CreateMap<UpdatePostDtoReq, UpdatePostCommand>();
         CreateMap<PostComment, CreatePostCommentDtoRes>();
         CreateMap<PostInteraction, CreatePostInteractionDtoRes>();
+        CreateMap<Blog.Application.Dtos.Post.InteractionCount, Blog.API.Dtos.V1.Post.Responses.InteractionCount>();
+        CreateMap<GetPostByIdDtoApp, GetPostByIdDtoRes>().ForMember(
+            res => res.Id, 
+            m => 
+                m.MapFrom(app => app.Post.Id))
+            .ForMember(
+                res => res.UserProfileId, 
+                m => 
+                    m.MapFrom(app => app.Post.UserProfileId))
+            .ForMember(
+                res => res.Text, 
+                m => 
+                    m.MapFrom(app => app.Post.Text))
+            .ForMember(
+                res => res.Comments, 
+                m => 
+                    m.MapFrom(app => app.Post.Comments))
+            .ForMember(
+                res => res.CreatedAt, 
+                m => 
+                    m.MapFrom(app => app.Post.CreatedAt))
+            .ForMember(
+                res => res.UpdatedAt, 
+                m => 
+                    m.MapFrom(app => app.Post.UpdatedAt));
     }
 }
