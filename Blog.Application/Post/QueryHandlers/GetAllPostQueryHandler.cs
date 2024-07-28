@@ -16,6 +16,8 @@ public class GetAllPostQueryHandler: IRequestHandler<GetAllPostQuery, IEnumerabl
     
     public async Task<IEnumerable<Domain.Aggregates.PostAggregate.Post>> Handle(GetAllPostQuery request, CancellationToken cancellationToken)
     {
-        return await _ctx.Posts.ToListAsync(cancellationToken);
+        return await _ctx.Posts
+            .Include(post => post.UserProfile)
+            .ToListAsync(cancellationToken);
     }
 }

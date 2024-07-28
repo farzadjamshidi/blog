@@ -19,7 +19,9 @@ public class GetPostQueryHandler: IRequestHandler<GetPostQuery, GetPostByIdDtoAp
     {
         return await _ctx.Posts
             .Where(post => post.Id == request.Id)
+            .Include(post => post.UserProfile)
             .Include(post => post.Comments)
+            .Include("Comments.UserProfile")
             .Select(p => new GetPostByIdDtoApp
             {
                 Post = p,

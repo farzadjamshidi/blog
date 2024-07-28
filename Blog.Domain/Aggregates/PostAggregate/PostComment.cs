@@ -1,4 +1,5 @@
 using System.Net.Mime;
+using Blog.Domain.Aggregates.UserProfileAggregate;
 
 namespace Blog.Domain.Aggregates.PostAggregate;
 
@@ -10,6 +11,8 @@ public class PostComment
     public Guid Id { get; private set; }
     public Guid PostId { get; private set; }
     public Guid UserProfileId { get; private set; }
+    public UserProfile UserProfile { get; private set; }
+
     public string Text { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public DateTime UpdatedAt { get; private set; }

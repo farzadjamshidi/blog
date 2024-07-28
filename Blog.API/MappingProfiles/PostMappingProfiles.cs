@@ -21,9 +21,9 @@ public class PostMappingProfiles: Profile
             m => 
                 m.MapFrom(app => app.Post.Id))
             .ForMember(
-                res => res.UserProfileId, 
+                res => res.UserProfile, 
                 m => 
-                    m.MapFrom(app => app.Post.UserProfileId))
+                    m.MapFrom(app => app.Post.UserProfile))
             .ForMember(
                 res => res.Text, 
                 m => 
