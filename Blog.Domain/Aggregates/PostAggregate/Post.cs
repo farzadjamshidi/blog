@@ -29,12 +29,13 @@ public class Post
     public static Post CreatePost(Guid userProfileId, string text)
     {
         //Here is for validations
+        var now = DateTime.UtcNow;
         return new Post()
         {
             UserProfileId = userProfileId,
             Text = text,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = now,
+            UpdatedAt = now
         };
     }
 
