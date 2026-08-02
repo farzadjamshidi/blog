@@ -1,5 +1,6 @@
 using Blog.API.Setup;
 using Blog.Application;
+using Blog.DAL;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -44,6 +45,7 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
                 });
         });
 
+        builder.Services.AddHealthChecks().AddDbContextCheck<DataContext>();
         // builder.Services.AddStackExchangeRedisCache(options =>
         // {
         //     options.Configuration = "localhost:6379";

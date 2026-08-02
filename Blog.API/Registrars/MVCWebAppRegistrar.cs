@@ -35,6 +35,7 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
 
         app.MapControllers();
         
+        app.MapHealthChecks("/health");
         
         app.UseMiddleware<ErrorHandlingMiddleware>();
     }
