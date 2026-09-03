@@ -17,6 +17,10 @@ public static class HttpContextExtensions
     private static Guid GetGuidClaimValue(string key, HttpContext context)
     {
         var identity = context.User.Identity as ClaimsIdentity;
-        return Guid.Parse(identity?.FindFirst(key)?.Value);
+        var claimValue = identity?.FindFirst(key)?.Value
+            ?? throw new UnauthorizedAccessException($"Missing '{key}' claim");
+
+        ReadOnlySpan<char> span = claimValue.AsSpan().Trim();
+        return Guid.Parse(span);
     }
 }
