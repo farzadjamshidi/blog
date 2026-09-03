@@ -7,18 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Post.QueryHandlers;
 
-public class GetPostQueryHandler: IRequestHandler<GetPostQuery, GetPostByIdDtoApp?>
+public class GetPostQueryHandler(DataContext ctx): IRequestHandler<GetPostQuery, GetPostByIdDtoApp?>
 {
-    private readonly DataContext _ctx;
-    
-    public GetPostQueryHandler(DataContext ctx)
-    {
-        _ctx = ctx;
-    }
-    
     public async Task<GetPostByIdDtoApp?> Handle(GetPostQuery request, CancellationToken cancellationToken)
     {
-        var dto = await _ctx.Posts
+        var dto = await ctx.Posts
             .Where(post => post.Id == request.Id)
             .Include(post => post.UserProfile)
             .Include(post => post.Comments)
