@@ -37,8 +37,12 @@ public class PostMappingProfiles: Profile
                 m => 
                     m.MapFrom(app => app.Post.CreatedAt))
             .ForMember(
-                res => res.UpdatedAt, 
-                m => 
-                    m.MapFrom(app => app.Post.UpdatedAt));
+                res => res.UpdatedAt,
+                m =>
+                    m.MapFrom(app => app.Post.UpdatedAt))
+            .ForMember(
+                res => res.EngagementScore,
+                m =>
+                    m.MapFrom(app => app.EngagementScore));
     }
 }

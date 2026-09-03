@@ -6,10 +6,12 @@ public class GetPostByIdDtoApp
 {
     public Blog.Domain.Aggregates.PostAggregate.Post Post { get; set; }
     public List<InteractionCount> InteractionsCount { get; set; }
+    public int EngagementScore { get; set; }
 }
 
 public class InteractionCount
 {
     public InteractionType Type { get; set; }
     public int Count { get; set; }
+    public int Weight { get; set; }
 }

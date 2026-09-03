@@ -9,6 +9,7 @@ public class GetPostByIdDtoRes
     public string Text { get; set; }
     public List<PostComment> Comments { get; set; }
     public List<InteractionCount> InteractionsCount { get; set; }
+    public int EngagementScore { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
@@ -17,4 +18,5 @@ public class InteractionCount
 {
     public InteractionType Type { get; set; }
     public int Count { get; set; }
+    public int Weight { get; set; }
 }
