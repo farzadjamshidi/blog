@@ -13,6 +13,7 @@ public class Routes
     public class Post
     {
         public const string Entity = "{id}";
+        public const string DapperSummary = "Dapper";
         public const string Comment = "{id}/Comment";
         public const string CommentEntity = "{id}/Comment/{commentId}";
         public const string Interaction = "{id}/Interaction";

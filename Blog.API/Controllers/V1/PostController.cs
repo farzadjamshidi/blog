@@ -37,6 +37,18 @@ public class PostController : ControllerBase
         return Ok(response);
     }
 
+    // Same job as GetAll() above (list all posts), via Dapper + raw SQL
+    // instead of EF Core + LINQ
+    // Returns PostSummaryDapperDto directly, skipping the API-DTO/AutoMapper
+    // hop GetAll() uses, since this is a small comparison endpoint.
+    [HttpGet]
+    [Route(Routes.Post.DapperSummary)]
+    public async Task<IActionResult> GetAllDapper()
+    {
+        var posts = await _mediator.Send(new GetAllPostsDapperQuery());
+        return Ok(posts);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePostDtoReq createPostDtoReq)
     {
