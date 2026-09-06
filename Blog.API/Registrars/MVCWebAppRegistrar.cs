@@ -8,6 +8,11 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
 {
     public void RegisterServices(WebApplication app)
     {
+        // Registered first so it wraps every middleware/endpoint after it —
+        // previously registered last, after all Map*() calls, which meant it
+        // never ran for requests that matched an endpoint (see learning-notes/notes/14-middlewares-and-filters.md).
+        app.UseMiddleware<ErrorHandlingMiddleware>();
+
         // if (app.Environment.IsDevelopment())
         // {
             app.UseSwagger();
@@ -36,7 +41,5 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
         app.MapControllers();
         
         app.MapHealthChecks("/health");
-        
-        app.UseMiddleware<ErrorHandlingMiddleware>();
     }
 }
