@@ -3,6 +3,7 @@ using Blog.API.Dtos.V1.Post.Requests;
 using Blog.API.Dtos.V1.Post.Responses;
 using Blog.Api.Extensions;
 using Blog.Application.Caching;
+using Blog.Application.Notifications;
 using Blog.Application.Post.Commands;
 using Blog.Application.Post.Queries;
 using MediatR;
@@ -22,16 +23,19 @@ public class PostController : ControllerBase
     private readonly IMapper _mapper;
     private readonly IMediator _mediator;
     private readonly ICacheService _cacheService;
+    private readonly INotificationService _notificationService;
 
     public PostController(
         IMapper mapper,
         IMediator mediator,
-        ICacheService cacheService
+        ICacheService cacheService,
+        INotificationService notificationService
         )
     {
         _mapper = mapper;
         _mediator = mediator;
         _cacheService = cacheService;
+        _notificationService = notificationService;
     }
 
     // Comments/interactions can also change what this response contains
@@ -181,14 +185,26 @@ public class PostController : ControllerBase
             Text = createPostCommentDtoReq.Text
         };
 
-        var postComment = await _mediator.Send(createPostCommentCommand, cancellationToken);
-        
-        if (postComment == null)
+        var result = await _mediator.Send(createPostCommentCommand, cancellationToken);
+
+        if (result == null)
         {
             return NotFound("Post not found");
         }
 
-        var response = _mapper.Map<CreatePostCommentDtoRes>(postComment);
+        var response = _mapper.Map<CreatePostCommentDtoRes>(result.Comment);
+
+        // A live push (below) makes serving a stale cached GetById response
+        // right after this a self-inflicted contradiction — close that gap
+        // here, same as the invalidation Update/Delete already do.
+        await _cacheService.RemoveAsync(CacheKey(id), cancellationToken);
+
+        // Don't notify authors about their own comments on their own post.
+        if (result.PostAuthorUserProfileId != createPostCommentCommand.UserProfileId)
+        {
+            await _notificationService.NotifyNewCommentAsync(
+                result.PostAuthorUserProfileId, id, response.Text, cancellationToken);
+        }
 
         return Ok(response);
     }

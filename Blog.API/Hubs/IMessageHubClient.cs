@@ -1,5 +1,6 @@
 namespace Blog.API.Hubs;
 
-public interface IMessageHubClient {
-    Task NewComment(string message);
+public interface IMessageHubClient
+{
+    Task NewComment(Guid postId, string commentText);
 }
