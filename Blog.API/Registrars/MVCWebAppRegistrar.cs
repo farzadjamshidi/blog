@@ -13,8 +13,8 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
         // never ran for requests that matched an endpoint (see learning-notes/notes/14-middlewares-and-filters.md).
         app.UseMiddleware<ErrorHandlingMiddleware>();
 
-        // if (app.Environment.IsDevelopment())
-        // {
+        if (!app.Environment.IsProduction())
+        {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -22,11 +22,11 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
 
                 foreach (var description in provider.ApiVersionDescriptions)
                 {
-                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", 
+                    options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json",
                         description.ApiVersion.ToString());
                 }
             });
-        // }
+        }
 
         app.UseHttpsRedirection();
 
