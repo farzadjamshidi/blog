@@ -50,9 +50,9 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
         // {
         //     options.Configuration = "localhost:6379";
         // });
-        //
-        // builder.Services.AddSerilog();
-        // SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>());
-        // builder.Host.UseSerilog();
+
+        builder.Services.AddSerilog();
+        SerilogSetup.AddSerilog(builder.Configuration.GetSection("Logs").Get<LogSetupConfig>()!);
+        builder.Host.UseSerilog();
     }
 }

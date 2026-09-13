@@ -52,12 +52,12 @@ public class ErrorHandlingMiddleware
         var exceptionMessage = exception.InnerException?.Message ?? exception.Message;
 
         _logService.LogError(
-            exceptionMessage,
+            exception,
+            "Unhandled exception for user {UserName} from {IpAddress}: {Method} {Path}",
             context.User.Claims.FirstOrDefault(x => x.Type == "UserName")?.Value,
             context.Connection.RemoteIpAddress?.ToString(),
             context.Request?.Method,
-            context.Request?.Path,
-            exception);
+            context.Request?.Path);
         
         var exceptionType = exception.GetType();
         var errorMap = _exceptionStatusCodes.ContainsKey(exceptionType)
