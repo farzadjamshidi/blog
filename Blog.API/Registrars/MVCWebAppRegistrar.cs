@@ -28,7 +28,17 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
             });
         }
 
-        app.UseHttpsRedirection();
+        // Only redirect to HTTPS when an HTTPS endpoint is actually configured.
+        // Docker Compose runs ASPNETCORE_URLS=http://+:8080 only (no cert, no
+        // HTTPS port at all) — redirecting there sent every request to a port
+        // nothing was listening on, which looked like the container itself was
+        // unreachable (see learning-notes/notes/39-docker-containerization.md).
+        var urls = app.Configuration["ASPNETCORE_URLS"];
+
+        if (string.IsNullOrEmpty(urls) || urls.Contains("https", StringComparison.OrdinalIgnoreCase))
+        {
+            app.UseHttpsRedirection();
+        }
 
         app.UseAuthorization();
 

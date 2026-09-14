@@ -1,0 +1,49 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Blog.API/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__AzureSql=Server=db;Database=BlogDb;User Id=sa;Password=LocalDev_Only_P@ss1;TrustServerCertificate=True;
+      - Redis__ConnectionString=redis:6379
+      - Logs__DatabaseType=MongoDB
+      - Logs__ConnectionString=mongodb://mongo:27017
+      - Logs__MongoDatabaseName=BlogLogs
+      - Logs__EnabledConsoleOutput=true
+    depends_on:
+      - db
+      - redis
+      - mongo
+
+  # SA_PASSWORD is a local-only, Docker-network-only placeholder — same
+  # reasoning as the JWT signing key decision in 8.2: low-stakes, never
+  # leaves this compose file, not a real secret.
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=LocalDev_Only_P@ss1
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  sql_data:
+  mongo_data:
