@@ -14,10 +14,12 @@ services:
       - Logs__ConnectionString=mongodb://mongo:27017
       - Logs__MongoDatabaseName=BlogLogs
       - Logs__EnabledConsoleOutput=true
+      - RabbitMQ__Host=rabbitmq
     depends_on:
       - db
       - redis
       - mongo
+      - rabbitmq
 
   # SA_PASSWORD is a local-only, Docker-network-only placeholder — same
   # reasoning as the JWT signing key decision in 8.2: low-stakes, never
@@ -43,6 +45,32 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  # Management UI at localhost:15672 (guest/guest) — genuinely useful for
+  # watching the queue while learning this, not just plumbing.
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # The first real, independently-deployed service split out of the
+  # monolith (see learning-notes/notes/40-monolith-vs-microservices.md) —
+  # a separate repo/solution, built from its own Dockerfile. Keeping the
+  # orchestration for both here in blog/'s compose file (rather than a
+  # dedicated infra repo) is a pragmatic call for a two-person learning
+  # project, not necessarily what a larger real system would do.
+  notifications:
+    build:
+      context: ../blog-notifications
+      dockerfile: Blog.Notifications/Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - RabbitMQ__Host=rabbitmq
+    depends_on:
+      - rabbitmq
 
 volumes:
   sql_data:

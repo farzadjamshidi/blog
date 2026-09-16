@@ -1,4 +1,3 @@
-using Blog.API.Hubs;
 using Blog.API.Middleware;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
@@ -45,8 +44,6 @@ public class MVCWebAppRegistrar: IWebApplicationRegistrar
         app.UseCors();
         
         app.UseStaticFiles();
-        
-        app.MapHub<MessageHub>("/notification");
 
         app.MapControllers();
         

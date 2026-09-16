@@ -16,10 +16,15 @@ SignalR, Serilog. Layout: `Blog.Domain` → `Blog.DAL` → `Blog.Application`
 docker-compose up
 ```
 
-This starts four containers: the API itself (`http://localhost:8080`),
-SQL Server, Redis, and MongoDB, all networked together. **First run
-only**, apply the database schema (the containers start with an empty
-database — nothing runs migrations automatically):
+This starts six containers: the API itself (`http://localhost:8080`),
+SQL Server, Redis, MongoDB, RabbitMQ (management UI at
+`http://localhost:15672`, guest/guest), and `blog-notifications` — a
+separate, independently-deployed service (its own sibling repo, built
+from `../blog-notifications`) that consumes new-comment events over
+RabbitMQ. See `../blog-notifications/README.md` and
+`learning-notes/notes/40-monolith-vs-microservices.md` onward for why.
+**First run only**, apply the database schema (the containers start with
+an empty database — nothing runs migrations automatically):
 
 ```bash
 dotnet tool install --global dotnet-ef   # if you don't already have it

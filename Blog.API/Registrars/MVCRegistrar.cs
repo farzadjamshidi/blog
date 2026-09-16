@@ -12,8 +12,6 @@ public class MVCRegistrar: IWebApplicationBuilderRegistrar
 {
     public void RegisterServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddSignalR();
- 
         builder.Services.AddControllers();
 
         builder.Services.AddApiVersioning(config =>
