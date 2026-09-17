@@ -14,6 +14,7 @@ public class PostMappingProfiles: Profile
         CreateMap<Post, CreatePostDtoRes>();
         CreateMap<UpdatePostDtoReq, UpdatePostCommand>();
         CreateMap<PostComment, CreatePostCommentDtoRes>();
+        CreateMap<PostComment, PostCommentDtoRes>();
         CreateMap<PostInteraction, CreatePostInteractionDtoRes>();
         CreateMap<Blog.Application.Dtos.Post.InteractionCount, Blog.API.Dtos.V1.Post.Responses.InteractionCount>();
         CreateMap<GetPostByIdDtoApp, GetPostByIdDtoRes>().ForMember(
