@@ -72,6 +72,27 @@ services:
     depends_on:
       - rabbitmq
 
+  # The single entry point blog-blazor talks to in this setup — routes
+  # /api/* to api and /notification* to notifications, so the frontend
+  # only needs to know one address 
+  # api and
+  # notifications stay directly published too, for Swagger/debugging
+  # convenience during learning — a stricter real setup would only expose
+  # the gateway.
+  gateway:
+    build:
+      context: ../blog-gateway
+      dockerfile: Blog.Gateway/Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ReverseProxy__Clusters__blog-api__Destinations__destination1__Address=http://api:8080/
+      - ReverseProxy__Clusters__blog-notifications__Destinations__destination1__Address=http://notifications:8080/
+    depends_on:
+      - api
+      - notifications
+
 volumes:
   sql_data:
   mongo_data:

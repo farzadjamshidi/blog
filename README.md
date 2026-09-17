@@ -16,12 +16,14 @@ SignalR, Serilog. Layout: `Blog.Domain` → `Blog.DAL` → `Blog.Application`
 docker-compose up
 ```
 
-This starts six containers: the API itself (`http://localhost:8080`),
+This starts seven containers: the API itself (`http://localhost:8080`),
 SQL Server, Redis, MongoDB, RabbitMQ (management UI at
-`http://localhost:15672`, guest/guest), and `blog-notifications` — a
+`http://localhost:15672`, guest/guest), `blog-notifications` — a
 separate, independently-deployed service (its own sibling repo, built
 from `../blog-notifications`) that consumes new-comment events over
-RabbitMQ. See `../blog-notifications/README.md` and
+RabbitMQ — and `blog-gateway` (`http://localhost:8082`), a reverse proxy
+in front of both services so `blog-blazor` only needs one address. See
+`../blog-notifications/README.md`, `../blog-gateway/README.md`, and
 `learning-notes/notes/40-monolith-vs-microservices.md` onward for why.
 **First run only**, apply the database schema (the containers start with
 an empty database — nothing runs migrations automatically):
