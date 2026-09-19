@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Blog.API/Dockerfile
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -26,6 +27,7 @@ services:
   # leaves this compose file, not a real secret.
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=LocalDev_Only_P@ss1
@@ -36,11 +38,13 @@ services:
 
   redis:
     image: redis:7
+    restart: unless-stopped
     ports:
       - "6379:6379"
 
   mongo:
     image: mongo:7
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
@@ -50,6 +54,7 @@ services:
   # watching the queue while learning this, not just plumbing.
   rabbitmq:
     image: rabbitmq:3.13-management
+    restart: unless-stopped
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -64,6 +69,7 @@ services:
     build:
       context: ../blog-notifications
       dockerfile: Blog.Notifications/Dockerfile
+    restart: unless-stopped
     ports:
       - "8081:8080"
     environment:
@@ -83,6 +89,7 @@ services:
     build:
       context: ../blog-gateway
       dockerfile: Blog.Gateway/Dockerfile
+    restart: unless-stopped
     ports:
       - "8082:8080"
     environment:
