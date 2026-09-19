@@ -1,5 +1,6 @@
 
 using System.Net.Mime;
+using Blog.Domain.Aggregates.PostAggregate.Reactions;
 using Blog.Domain.Aggregates.UserProfileAggregate;
 
 namespace Blog.Domain.Aggregates.PostAggregate;
@@ -65,5 +66,10 @@ public class Post
     public void RemoveInteraction(PostInteraction postInteraction)
     {
         _interactions.Remove(postInteraction);
+    }
+
+    public int GetEngagementScore()
+    {
+        return _interactions.Sum(i => Reaction.FromType(i.Type).Weight);
     }
 }

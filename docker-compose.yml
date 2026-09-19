@@ -1,0 +1,115 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Blog.API/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__AzureSql=Server=db;Database=BlogDb;User Id=sa;Password=LocalDev_Only_P@ss1;TrustServerCertificate=True;
+      - Redis__ConnectionString=redis:6379
+      - Logs__DatabaseType=MongoDB
+      - Logs__ConnectionString=mongodb://mongo:27017
+      - Logs__MongoDatabaseName=BlogLogs
+      - Logs__EnabledConsoleOutput=true
+      - RabbitMQ__Host=rabbitmq
+    depends_on:
+      - db
+      - redis
+      - mongo
+      - rabbitmq
+
+  # SA_PASSWORD is a local-only, Docker-network-only placeholder — same
+  # reasoning as the JWT signing key decision in 8.2: low-stakes, never
+  # leaves this compose file, not a real secret.
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=LocalDev_Only_P@ss1
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  # Management UI at localhost:15672 (guest/guest) — genuinely useful for
+  # watching the queue while learning this, not just plumbing.
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # The first real, independently-deployed service split out of the
+  # monolith (see learning-notes/notes/40-monolith-vs-microservices.md) —
+  # a separate repo/solution, built from its own Dockerfile. Keeping the
+  # orchestration for both here in blog/'s compose file (rather than a
+  # dedicated infra repo) is a pragmatic call for a two-person learning
+  # project, not necessarily what a larger real system would do.
+  notifications:
+    build:
+      context: ../blog-notifications
+      dockerfile: Blog.Notifications/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - RabbitMQ__Host=rabbitmq
+      - Logs__DatabaseType=MongoDB
+      - Logs__ConnectionString=mongodb://mongo:27017
+      - Logs__MongoDatabaseName=BlogLogs
+      - Logs__EnabledConsoleOutput=true
+    depends_on:
+      - rabbitmq
+      - mongo
+
+  # The single entry point blog-blazor talks to in this setup — routes
+  # /api/* to api and /notification* to notifications, so the frontend
+  # only needs to know one address 
+  # api and
+  # notifications stay directly published too, for Swagger/debugging
+  # convenience during learning — a stricter real setup would only expose
+  # the gateway.
+  gateway:
+    build:
+      context: ../blog-gateway
+      dockerfile: Blog.Gateway/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      - ReverseProxy__Clusters__blog-api__Destinations__destination1__Address=http://api:8080/
+      - ReverseProxy__Clusters__blog-notifications__Destinations__destination1__Address=http://notifications:8080/
+      - Logs__DatabaseType=MongoDB
+      - Logs__ConnectionString=mongodb://mongo:27017
+      - Logs__MongoDatabaseName=BlogLogs
+      - Logs__EnabledConsoleOutput=true
+    depends_on:
+      - api
+      - notifications
+      - mongo
+
+volumes:
+  sql_data:
+  mongo_data:

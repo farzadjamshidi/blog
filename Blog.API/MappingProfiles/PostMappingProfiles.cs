@@ -14,6 +14,7 @@ public class PostMappingProfiles: Profile
         CreateMap<Post, CreatePostDtoRes>();
         CreateMap<UpdatePostDtoReq, UpdatePostCommand>();
         CreateMap<PostComment, CreatePostCommentDtoRes>();
+        CreateMap<PostComment, PostCommentDtoRes>();
         CreateMap<PostInteraction, CreatePostInteractionDtoRes>();
         CreateMap<Blog.Application.Dtos.Post.InteractionCount, Blog.API.Dtos.V1.Post.Responses.InteractionCount>();
         CreateMap<GetPostByIdDtoApp, GetPostByIdDtoRes>().ForMember(
@@ -37,8 +38,12 @@ public class PostMappingProfiles: Profile
                 m => 
                     m.MapFrom(app => app.Post.CreatedAt))
             .ForMember(
-                res => res.UpdatedAt, 
-                m => 
-                    m.MapFrom(app => app.Post.UpdatedAt));
+                res => res.UpdatedAt,
+                m =>
+                    m.MapFrom(app => app.Post.UpdatedAt))
+            .ForMember(
+                res => res.EngagementScore,
+                m =>
+                    m.MapFrom(app => app.EngagementScore));
     }
 }

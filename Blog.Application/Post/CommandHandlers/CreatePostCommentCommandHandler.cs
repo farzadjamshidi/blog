@@ -1,3 +1,4 @@
+using Blog.Application.Dtos.Post;
 using Blog.Application.Post.Commands;
 using Blog.DAL;
 using Blog.Domain.Aggregates.PostAggregate;
@@ -6,16 +7,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Post.CommandHandlers;
 
-public class CreatePostCommentCommandHandler: IRequestHandler<CreatePostCommentCommand, PostComment?>
+public class CreatePostCommentCommandHandler: IRequestHandler<CreatePostCommentCommand, CreatePostCommentResult?>
 {
     private readonly DataContext _ctx;
-    
+
     public CreatePostCommentCommandHandler(DataContext ctx)
     {
         _ctx = ctx;
     }
-    
-    public async Task<PostComment?> Handle(CreatePostCommentCommand request, CancellationToken cancellationToken)
+
+    public async Task<CreatePostCommentResult?> Handle(CreatePostCommentCommand request, CancellationToken cancellationToken)
     {
         var post = await _ctx.Posts.FirstOrDefaultAsync(post => post.Id == request.PostId, cancellationToken);
 
@@ -31,6 +32,10 @@ public class CreatePostCommentCommandHandler: IRequestHandler<CreatePostCommentC
 
         await _ctx.SaveChangesAsync(cancellationToken);
 
-        return comment;
+        return new CreatePostCommentResult
+        {
+            Comment = comment,
+            PostAuthorUserProfileId = post.UserProfileId
+        };
     }
 }

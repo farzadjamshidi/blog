@@ -40,6 +40,23 @@ public class IdentityRegistrar: IWebApplicationBuilderRegistrar
                 };
                 jwt.Audience = jwtSettings.Audiences?[0];
                 jwt.ClaimsIssuer = jwtSettings.Issuer;
+                jwt.Events = new JwtBearerEvents
+                {
+                    // Browsers can't set an Authorization header on a WebSocket
+                    // handshake, so the SignalR client sends the token as an
+                    // access_token query parameter instead — only for the hub's
+                    // own path, every other endpoint still uses the header.
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+                        if (!string.IsNullOrEmpty(accessToken) &&
+                            context.HttpContext.Request.Path.StartsWithSegments("/notification"))
+                        {
+                            context.Token = accessToken;
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
             });
     }
 }

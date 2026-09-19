@@ -1,23 +1,17 @@
 using Blog.Application.Dtos.Post;
 using Blog.Application.Post.Queries;
 using Blog.DAL;
+using Blog.Domain.Aggregates.PostAggregate.Reactions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Post.QueryHandlers;
 
-public class GetPostQueryHandler: IRequestHandler<GetPostQuery, GetPostByIdDtoApp?>
+public class GetPostQueryHandler(DataContext ctx): IRequestHandler<GetPostQuery, GetPostByIdDtoApp?>
 {
-    private readonly DataContext _ctx;
-    
-    public GetPostQueryHandler(DataContext ctx)
-    {
-        _ctx = ctx;
-    }
-    
     public async Task<GetPostByIdDtoApp?> Handle(GetPostQuery request, CancellationToken cancellationToken)
     {
-        return await _ctx.Posts
+        var dto = await ctx.Posts
             .Where(post => post.Id == request.Id)
             .Include(post => post.UserProfile)
             .Include(post => post.Comments)
@@ -35,5 +29,17 @@ public class GetPostQueryHandler: IRequestHandler<GetPostQuery, GetPostByIdDtoAp
                     .ToList()
             })
             .FirstOrDefaultAsync(cancellationToken);
+
+        if (dto != null)
+        {
+            foreach (var interactionCount in dto.InteractionsCount)
+            {
+                interactionCount.Weight = Reaction.FromType(interactionCount.Type).Weight;
+            }
+
+            dto.EngagementScore = dto.InteractionsCount.Sum(ic => ic.Count * ic.Weight);
+        }
+
+        return dto;
     }
 }

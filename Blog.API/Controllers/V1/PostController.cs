@@ -2,6 +2,8 @@ using AutoMapper;
 using Blog.API.Dtos.V1.Post.Requests;
 using Blog.API.Dtos.V1.Post.Responses;
 using Blog.Api.Extensions;
+using Blog.Application.Caching;
+using Blog.Application.Notifications;
 using Blog.Application.Post.Commands;
 using Blog.Application.Post.Queries;
 using MediatR;
@@ -16,17 +18,32 @@ namespace Blog.API.Controllers.V1;
 [Authorize()]
 public class PostController : ControllerBase
 {
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(30);
+
     private readonly IMapper _mapper;
     private readonly IMediator _mediator;
+    private readonly ICacheService _cacheService;
+    private readonly INotificationService _notificationService;
 
     public PostController(
-        IMapper mapper, 
-        IMediator mediator
+        IMapper mapper,
+        IMediator mediator,
+        ICacheService cacheService,
+        INotificationService notificationService
         )
     {
         _mapper = mapper;
         _mediator = mediator;
+        _cacheService = cacheService;
+        _notificationService = notificationService;
     }
+
+    // Comments/interactions can also change what this response contains
+    // (via CreatePostComment, CreatePostInteraction, etc.), and those
+    // handlers don't invalidate this cache entry — the 30s TTL bounds that
+    // staleness instead of explicit invalidation from every handler that
+    // touches a post's sub-collections.
+    private static string CacheKey(Guid id) => $"post:{id}";
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -35,6 +52,18 @@ public class PostController : ControllerBase
         var posts = await _mediator.Send(postsQuery);
         var response = _mapper.Map<List<CreatePostDtoRes>>(posts);
         return Ok(response);
+    }
+
+    // Same job as GetAll() above (list all posts), via Dapper + raw SQL
+    // instead of EF Core + LINQ
+    // Returns PostSummaryDapperDto directly, skipping the API-DTO/AutoMapper
+    // hop GetAll() uses, since this is a small comparison endpoint.
+    [HttpGet]
+    [Route(Routes.Post.DapperSummary)]
+    public async Task<IActionResult> GetAllDapper()
+    {
+        var posts = await _mediator.Send(new GetAllPostsDapperQuery());
+        return Ok(posts);
     }
 
     [HttpPost]
@@ -56,58 +85,70 @@ public class PostController : ControllerBase
     // [MapToApiVersion("2.0")] we prefer to not use this approach to have a cleaner code.
     [HttpGet]
     [Route(Routes.Post.Entity)]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
+        var cached = await _cacheService.GetAsync<GetPostByIdDtoRes>(CacheKey(id), cancellationToken);
+        if (cached != null)
+        {
+            return Ok(cached);
+        }
+
         var postQuery = new GetPostQuery()
         {
             Id = id
         };
-        
-        var post = await _mediator.Send(postQuery);
-        
+
+        var post = await _mediator.Send(postQuery, cancellationToken);
+
         if (post == null)
         {
             return NotFound("Post not found");
         }
-        
+
         var response = _mapper.Map<GetPostByIdDtoRes>(post);
-        
+
+        await _cacheService.SetAsync(CacheKey(id), response, CacheDuration, cancellationToken);
+
         return Ok(response);
     }
 
     [HttpPatch]
     [Route(Routes.Post.Entity)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePostDtoReq updatePostDtoReq)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePostDtoReq updatePostDtoReq, CancellationToken cancellationToken)
     {
         var updatePostCommand = _mapper.Map<UpdatePostCommand>(updatePostDtoReq);
         updatePostCommand.Id = id;
-        
-        var updatedPost = await _mediator.Send(updatePostCommand);
+
+        var updatedPost = await _mediator.Send(updatePostCommand, cancellationToken);
 
         if (updatedPost == null)
         {
             return NotFound("Post not found");
         }
-        
+
+        await _cacheService.RemoveAsync(CacheKey(id), cancellationToken);
+
         return NoContent();
     }
     
     [HttpDelete]
     [Route(Routes.Post.Entity)]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {
         var deletePostCommand = new DeletePostCommand()
         {
             Id = id
         };
-        
-        var deletedPost = await _mediator.Send(deletePostCommand);
+
+        var deletedPost = await _mediator.Send(deletePostCommand, cancellationToken);
 
         if (deletedPost == null)
         {
             return NotFound("Post not found");
         }
-        
+
+        await _cacheService.RemoveAsync(CacheKey(id), cancellationToken);
+
         return NoContent();
     }
 
@@ -144,14 +185,26 @@ public class PostController : ControllerBase
             Text = createPostCommentDtoReq.Text
         };
 
-        var postComment = await _mediator.Send(createPostCommentCommand, cancellationToken);
-        
-        if (postComment == null)
+        var result = await _mediator.Send(createPostCommentCommand, cancellationToken);
+
+        if (result == null)
         {
             return NotFound("Post not found");
         }
 
-        var response = _mapper.Map<CreatePostCommentDtoRes>(postComment);
+        var response = _mapper.Map<CreatePostCommentDtoRes>(result.Comment);
+
+        // A live push (below) makes serving a stale cached GetById response
+        // right after this a self-inflicted contradiction — close that gap
+        // here, same as the invalidation Update/Delete already do.
+        await _cacheService.RemoveAsync(CacheKey(id), cancellationToken);
+
+        // Don't notify authors about their own comments on their own post.
+        if (result.PostAuthorUserProfileId != createPostCommentCommand.UserProfileId)
+        {
+            await _notificationService.NotifyNewCommentAsync(
+                result.PostAuthorUserProfileId, id, response.Text, cancellationToken);
+        }
 
         return Ok(response);
     }
