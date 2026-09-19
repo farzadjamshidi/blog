@@ -12,6 +12,8 @@ internal static class SerilogSetup
         var setup = new LoggerConfiguration()
             .Enrich.FromLogContext()
             .Enrich.With<RemoveExtraPropertiesEnricher>()
+            .Enrich.With<TraceIdEnricher>()
+            .Enrich.WithProperty("Service", "Blog.API")
             .MinimumLevel.Is(config.LogLevel.ToSerilogLogLevel())
             .MinimumLevel.Override("Microsoft", LogEventLevel.Error);
 
